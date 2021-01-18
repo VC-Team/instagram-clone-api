@@ -11,7 +11,7 @@ const CommentsSchema = new Schema({
         required: true
     },
     replies: {
-        type: [CommentsSchema],
+        type: [],
         required: false
     },
     tags: {
@@ -25,13 +25,18 @@ const _schema = new Schema({
         type: Types.ObjectId,
         required: true
     },
+    caption: {
+        type: String,
+        required: true
+    },
     medias: {
-        type: [Types.ObjectId],
+        type: [String],
         required: true,
     },
     totalPeopleLike: {
         type: Number,
-        required: false
+        required: false,
+        default: 0
     },
     peopleLike: {
         type: [Types.ObjectId],
@@ -39,17 +44,9 @@ const _schema = new Schema({
         default: []
     },
     comments: {
-        type: CommentsSchema,
+        type: [CommentsSchema],
         required: true
     },
-    fullName: {
-        type: String,
-        required: true
-    },
-    createAt: {
-        type: String,
-        required: true
-    }
 }, { timestamps: true })
 
 module.exports = model("post", _schema);

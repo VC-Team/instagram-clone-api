@@ -29,7 +29,7 @@ userController.updateById = async (id, dataUpdate) => {
 }
 
 userController.deleteByFilter = async (filter) => {
-    await User.delete(filter)
+    await User.remove(filter)
     return true
 }
 
@@ -38,8 +38,8 @@ userController.deleteById = async (id) => {
     return true
 }
 
-userController.getFollowing = async (userId) => {    
-    const [following] = await User.aggregate([        
+userController.getFollowing = async (userId) => {
+    const [following] = await User.aggregate([
         {
             $match: { _id: ObjectID(userId) }
         },
@@ -99,9 +99,9 @@ userController.follow = async (userId, followerId) => {
             _id: ObjectID(userId)
         },
         {
-            $addToSet:{
+            $addToSet: {
                 following: followerId
-            },            
+            },
         }
     )
     return true

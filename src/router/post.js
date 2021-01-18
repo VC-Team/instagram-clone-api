@@ -1,44 +1,56 @@
-var express = require('express');
+const express = require('express');
 const postController = require('../controller/post');
-var router = express.Router();
+const router = express.Router();
+const pipe = require('../helper/server').pipe
 
-router.post('/', 
+router.post('/',
     pipe(
-        (req) => [req.body],
+        (req) => [{
+            author: req.user._id,
+            ...req.body
+        }],
         postController.insert,
-        {end: true}
+        { end: true }
     )
 )
 
-router.put('/:postId', 
+router.put('/:postId',
     pipe(
-        (req) => [req.params.postId , req.body],
-        postController.insert,
-        {end: true}
+        (req) => [req.params.postId, req.body],
+        postController.updateById,
+        { end: true }
     )
 )
 
-router.delete('/:postId', 
-    pipe(
-        (req) => [req.params.postId , req.user._id],
-        postController.deletePost,
-        {end: true}
-    )
-)
-
-router.get('/of-user/:userId', 
-    pipe(
-        (req) => [{author: {$eq: req.params.userId}}],
-        postController.getByFilter,
-        {end: true}
-    )
-)
-
-router.post('/:postId/like', 
+router.delete('/:postId',
     pipe(
         (req) => [req.params.postId, req.user._id],
-        postController.insert,
-        {end: true}
+        postController.deletePost,
+        { end: true }
+    )
+)
+
+router.get('/of-user/:userId',
+    pipe(
+        (req) => [{ author: { $eq: req.params.userId } }],
+        postController.getByFilter,
+        { end: true }
+    )
+)
+
+router.post('/:postId/like',
+    pipe(
+        (req) => [req.params.postId, req.user._id],
+        postController.like,
+        { end: true }
+    )
+)
+
+router.post('/:postId/unlike',
+    pipe(
+        (req) => [req.params.postId, req.user._id],
+        postController.unlike,
+        { end: true }
     )
 )
 

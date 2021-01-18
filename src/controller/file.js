@@ -29,7 +29,7 @@ fileController.updateById = async (id, dataUpdate) => {
 }
 
 fileController.deleteByFilter = async (filter) => {
-    await File.delete(filter)
+    await File.remove(filter)
     return true
 }
 
