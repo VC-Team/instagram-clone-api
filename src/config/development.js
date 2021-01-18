@@ -17,7 +17,9 @@ module.exports = {
             uri: "mongodb+srv://devphuc:G7t2MkBgMPP5sIOg@cluster0.eoy1d.mongodb.net/instagram-clone?retryWrites=true&w=majority",
             options: {
                 useNewUrlParser: true, useUnifiedTopology: true,
-            }
+            },
+            mail: "phuc.nguyendinh@alta.com.vn",
+            pass: "mongo09052000"
         },
         redis: {
 
