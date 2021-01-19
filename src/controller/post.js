@@ -1,6 +1,5 @@
 const Post = require('../model/post')
 const { ObjectID } = require("mongodb")
-const post = require('../model/post')
 
 let postController = {}
 
@@ -9,13 +8,14 @@ postController.insert = async (data) => {
     return posts
 }
 
-postController.getByFilter = async (filter = {}, projection = {}) => {
-    const posts = await Post.find(filter, projection)
+postController.getByFilter = async (filter = {}, projection = {}, pagination = {limit: 10, skip: 0}) => {
+    const {skip,limit} = pagination
+    const posts = await Post.find(filter, projection).skip(skip).limit(limit)
     return posts
 }
 
 postController.getById = async (id, projection = {}) => {
-    const post = await postController.getByFilter({ _id: ObjectID(id) }, projection)
+    const [post] = await postController.getByFilter({ _id: ObjectID(id) }, projection)
     return post
 }
 
@@ -40,7 +40,7 @@ postController.deleteById = async (id) => {
 }
 
 postController.isAuthor = async (authorId, postId) => {
-    const [post] = await postController.getById(postId)
+    const post = await postController.getById(postId)
     return post.author.toString() == authorId.toString()
 }
 
@@ -82,6 +82,19 @@ postController.unlike = async (postId, userId) => {
         }
     )
     return true
+}
+
+// =========================== GET NEWS FEED ==============================
+
+postController.getPostsOfUser = async (userId, pagination) => {
+    const posts = postController.getByFilter(
+        {
+            author: ObjectID(userId)
+        },
+        {}, 
+        pagination
+    )
+    return posts
 }
 
 module.exports = postController

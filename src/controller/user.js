@@ -70,21 +70,17 @@ userController.getFollowing = async (userId) => {
 }
 
 userController.getFollowers = async (userId) => {
-    const followings = await User.aggregate([
+    const follower = await userController.getByFilter(
         {
-            $match: {
-                following: {
+             following: {
                     $elemMatch: {
                         $eq: ObjectID(userId)
                     }
                 }
-            }
         },
-        {
-            $project: { following: 0, password: 0 }
-        }
-    ])
-    return followings
+        { following: 0, password: 0 }
+    )
+    return follower
 }
 
 userController.isBlock = async (userId, userBlockId) => {

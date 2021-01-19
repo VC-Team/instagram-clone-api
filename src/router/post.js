@@ -54,6 +54,14 @@ router.post('/:postId/unlike',
     )
 )
 
+router.post('/newsfeed',
+    pipe(
+        (req) => [req.user._id, req.body],
+        postController.getPostsOfUser,
+        { end: true }
+    )
+)
+
 module.exports = {
     router,
     config: {}
