@@ -33,11 +33,6 @@ const _schema = new Schema({
         type: [String],
         required: true,
     },
-    totalPeopleLike: {
-        type: Number,
-        required: false,
-        default: 0
-    },
     peopleLike: {
         type: [Types.ObjectId],
         required: false,

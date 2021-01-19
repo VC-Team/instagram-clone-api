@@ -65,7 +65,6 @@ postController.like = async (postId, userId) => {
         postId,
         {
             $addToSet: { peopleLike: ObjectID(userId) },
-            $inc: { totalPeopleLike: 1 }
         }
     )
     return true
@@ -78,7 +77,6 @@ postController.unlike = async (postId, userId) => {
         postId,
         {
             $pull: { peopleLike: ObjectID(userId) },
-            $inc: { totalPeopleLike: -1 }
         }
     )
     return true
@@ -95,6 +93,12 @@ postController.getPostsOfUser = async (userId, pagination) => {
         pagination
     )
     return posts
+}
+
+// =========================== GET DETAIL POST ==============================
+
+postController.getDetailPost = async (postId) => {
+
 }
 
 module.exports = postController
