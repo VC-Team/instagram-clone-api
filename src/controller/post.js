@@ -8,8 +8,8 @@ postController.insert = async (data) => {
     return posts
 }
 
-postController.getByFilter = async (filter = {}, projection = {}, pagination = {limit: 10, skip: 0}) => {
-    const {skip,limit} = pagination
+postController.getByFilter = async (filter = {}, projection = {}, pagination = { limit: 10, skip: 0 }) => {
+    const { skip, limit } = pagination
     const posts = await Post.find(filter, projection).skip(skip).limit(limit)
     return posts
 }
@@ -84,21 +84,15 @@ postController.unlike = async (postId, userId) => {
 
 // =========================== GET NEWS FEED ==============================
 
-postController.getPostsOfUser = async (userId, pagination) => {
-    const posts = postController.getByFilter(
+postController.getNewsfeedOfUser = async (userId, pagination) => {
+    const posts = await postController.getByFilter(
         {
             author: ObjectID(userId)
         },
-        {}, 
+        {},
         pagination
     )
     return posts
-}
-
-// =========================== GET DETAIL POST ==============================
-
-postController.getDetailPost = async (postId) => {
-
 }
 
 module.exports = postController

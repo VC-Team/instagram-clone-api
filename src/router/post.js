@@ -3,6 +3,14 @@ const postController = require('../controller/post');
 const router = express.Router();
 const pipe = require('../helper/server').pipe
 
+router.get('/:postId',
+    pipe(
+        (req) => [req.params.postId],
+        postController.getById,
+        { end: true }
+    )
+)
+
 router.post('/',
     pipe(
         (req) => [{
@@ -57,7 +65,7 @@ router.post('/:postId/unlike',
 router.post('/newsfeed',
     pipe(
         (req) => [req.user._id, req.body],
-        postController.getPostsOfUser,
+        postController.getNewsfeedOfUser,
         { end: true }
     )
 )
