@@ -6,6 +6,8 @@ const authController = {};
 
 authController.login = async (userName, password) => {
     const [user] = await userController.getByFilter({ userName });
+    console.log('user: ', user);
+
 
     if (!user) return;
 

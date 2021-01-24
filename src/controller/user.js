@@ -14,7 +14,7 @@ userController.getByFilter = async (filter = {}, projection = {}) => {
 }
 
 userController.getById = async (id, projection = {}) => {
-    const user = await userController.getByFilter({ _id: ObjectID(id) }, projection)
+    const [user] = await userController.getByFilter({ _id: ObjectID(id) }, projection)
     return user
 }
 
@@ -72,11 +72,11 @@ userController.getFollowing = async (userId) => {
 userController.getFollowers = async (userId) => {
     const follower = await userController.getByFilter(
         {
-             following: {
-                    $elemMatch: {
-                        $eq: ObjectID(userId)
-                    }
+            following: {
+                $elemMatch: {
+                    $eq: ObjectID(userId)
                 }
+            }
         },
         { following: 0, password: 0 }
     )

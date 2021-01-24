@@ -74,7 +74,7 @@ Authentication.prototype.handleError = function (type) {
 Authentication.prototype.middleware = async function (req, res, next) {
     const { tokenHeaderField, onError, invalidTokenMessage, tokenEmpty } = services[SConfig];
     const token = req.headers[tokenHeaderField];
-    
+
     if (!token) {
         const error = services.handleError(CONSTANT.error.TOKEN_EMPTY);
         if (typeof onError === "function") {
@@ -86,7 +86,7 @@ Authentication.prototype.middleware = async function (req, res, next) {
 
     await services.verify(token)
         .then(async (decoded) => {
-            const [user] = await getById(decoded._id);
+            const user = await getById(decoded._id);
             if (!user) {
                 const error = services.handleError(CONSTANT.error.USER_NOT_EXIST);
                 if (typeof onError === "function") {

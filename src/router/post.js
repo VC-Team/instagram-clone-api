@@ -64,7 +64,7 @@ router.post('/:postId/unlike',
 
 router.post('/newsfeed',
     pipe(
-        (req) => [req.user._id, req.body],
+        (req) => [req.user._id],
         postController.getNewsfeedOfUser,
         { end: true }
     )

@@ -1,4 +1,6 @@
 const Post = require('../model/post')
+const User = require('../model/user')
+const userController = require('../controller/user')
 const { ObjectID } = require("mongodb")
 
 let postController = {}
@@ -8,9 +10,8 @@ postController.insert = async (data) => {
     return posts
 }
 
-postController.getByFilter = async (filter = {}, projection = {}, pagination = { limit: 10, skip: 0 }) => {
-    const { skip, limit } = pagination
-    const posts = await Post.find(filter, projection).skip(skip).limit(limit)
+postController.getByFilter = async (filter = {}, projection = {}) => {
+    const posts = await Post.find(filter, projection)
     return posts
 }
 
@@ -55,7 +56,7 @@ postController.deletePost = async (postId, authorId) => {
 // =========================== REACTION TO POST ==============================
 
 postController.isLiked = async (postId, userId) => {
-    const [post] = await postController.getById(postId)
+    const post = await postController.getById(postId)
     return post.peopleLike.includes(ObjectID(userId))
 }
 
@@ -84,14 +85,34 @@ postController.unlike = async (postId, userId) => {
 
 // =========================== GET NEWS FEED ==============================
 
-postController.getNewsfeedOfUser = async (userId, pagination) => {
-    const posts = await postController.getByFilter(
+postController.getNewsfeedOfUser = async (userId) => {
+    let posts = await Post.aggregate([
         {
-            author: ObjectID(userId)
+            $match: {
+                author: ObjectID(userId)
+            }
         },
-        {},
-        pagination
-    )
+        {
+            $lookup: {
+                from: "users",
+                localField: "author",
+                foreignField: "_id",
+                as: "author"
+            }
+        },
+        {
+            $project: {
+                totalLike: { $size: "$peopleLike" },
+                author: { $arrayElemAt: ["$author", 0] },
+                caption: "$caption",
+                medias: "$medias",
+                amILike: {
+                    $cond: { if: { $in: [userId, "$peopleLike"] }, then: 1, else: 0 }
+                }
+            }
+        },
+    ])
+
     return posts
 }
 

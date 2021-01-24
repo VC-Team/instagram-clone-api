@@ -2,6 +2,17 @@ const userController = require("../controller/user");
 const { pipe } = require("../helper/server");
 const router = require("express").Router();
 
+
+router.get('/search/:value',
+    pipe(
+        (req) => [{
+            $text: { $search: req.params.value }
+        }],
+        userController.getByFilter,
+        { end: true }
+    )
+)
+
 router.get('/:userId',
     pipe(
         (req) => [req.params.userId, { following: 0 }],
@@ -34,7 +45,7 @@ router.get('/:userId/followers',
     )
 )
 
-router.post('/follow',    
+router.post('/follow',
     pipe(
         (req) => {
             return [req.user._id, req.body.followerId]
