@@ -1,28 +1,35 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const Routes = require("./router");
-const {initWebSocketEvent} = require("./event/websocket");
+const express = require("express")
+const bodyParser = require("body-parser")
+const cors = require("cors")
+const Routes = require("./router")
+const initWebSocketEvent = require("./event/websocket")
 
 const Server = {}
 
 const initDefaultMiddleware = (server) => {
-    server.use(cors());
-    server.use(bodyParser.json());
-    server.use(bodyParser.urlencoded({ extended: false }));
+    server.use(cors())
+    server.use(bodyParser.json())
+    server.use(bodyParser.urlencoded({ extended: false }))
 }
 
 Server.start = (apiConfig) => {
-    const { port = 9520, prefix } = apiConfig;
+    const { port = 9520, prefix } = apiConfig
 
-    const app = express();
-    const server = initWebSocketEvent(app)     
-    initDefaultMiddleware(app);
-    Routes.init(app, prefix);
+    let server = express()
 
-    server.listen(port, () => {
-        console.log(`[API] Running on port ${port}`);
+    var httpServer = require('http').Server(server);
+    const io = require('socket.io')(httpServer);
+    server.use(function (req, res, next) {
+        res.io = io
+        next();
     })
-};
 
-module.exports = Server;
+    initDefaultMiddleware(server)
+    Routes.init(server, prefix)
+
+    httpServer.listen(port, () => {
+        console.log(`[API] Running on port ${port}`)
+    })
+}
+
+module.exports = Server

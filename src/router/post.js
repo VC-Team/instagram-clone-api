@@ -4,7 +4,7 @@ const postController = require('../controller/post');
 const notificationController = require('../controller/notification');
 const router = express.Router();
 const pipe = require('../helper/server').pipe
-const {socketService} = require('../event/websocket/index')
+const { socketService } = require('../event/websocket/index')
 
 router.get('/:postId',
     pipe(
@@ -51,23 +51,27 @@ router.get('/of-user/:userId',
 
 router.post('/:postId/like',
     pipe(
-        (req) => [req.params.postId, req.user._id],
-        postController.like,        
+        (req, res) => {
+            return [req.params.postId, req.user._id]
+        },
+        postController.like,
     ),
     pipe(
-        async req => {
-            const post  = await postController.getById(req.params.postId)
-            const notif = {
+        async (req, res) => {
+            const post = await postController.getById(req.params.postId)
+            const notification = {
                 type: 0,
                 createdBy: ObjectID(req.user._id),
                 receiver: [ObjectID(post.author._id)],
                 impactedObjectId: ObjectID(req.params.postId)
             }
-            socketService.emit('post', notif)
-            return [notif]
+            notification.receiver.forEach(receiver => {
+                res.io.emit(`notification/${receiver}`, notification)
+            })
+            return [notification]
         },
         notificationController.insert,
-        { end:true }
+        { end: true }
     )
 )
 

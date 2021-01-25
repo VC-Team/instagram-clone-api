@@ -1,20 +1,14 @@
-var server = require('http')
-var io 
+const initWebSocketEvent = (server) => {
+    var httpServer = require('http').Server(server);
+    const io = require('socket.io')(httpServer);
 
-const initWebSocketEvent = (app) => {
-    var server = require('http').Server(app);
-    io = require('socket.io')(server);
-    
-    io.on('connection', function(socket) {
-        socket.on('client send', function(data) {
+    io.on('connection', function (socket) {
+        socket.on('client send', function (data) {
             io.sockets.emit('server send', data);
         })
-    });
-    
-    return server
+    })
+
+    return io
 }
 
-module.exports = {
-    initWebSocketEvent,
-    socketService: io && io.sockets
-}
+module.exports = initWebSocketEvent
