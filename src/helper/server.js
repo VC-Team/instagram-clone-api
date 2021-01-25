@@ -25,9 +25,12 @@ serverHelper.pipe = (
                 }
 
                 serverHelper.successResponse(res, responseData);
+                return result;
+            }else{
+                next()
             }
 
-            return result;
+            
         } catch (err) {
             console.log("[ERROR] ", err);
             serverHelper.errorCommonResponse(res);

@@ -1,8 +1,8 @@
 const express = require("express");
-const router = require("express").Router();
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const Routes = require("./router");
+const {initWebSocketEvent} = require("./event/websocket");
 
 const Server = {}
 
@@ -15,15 +15,14 @@ const initDefaultMiddleware = (server) => {
 Server.start = (apiConfig) => {
     const { port = 9520, prefix } = apiConfig;
 
-    const server = express();    
-
-    initDefaultMiddleware(server);
-    Routes.init(server, prefix);
+    const app = express();
+    const server = initWebSocketEvent(app)     
+    initDefaultMiddleware(app);
+    Routes.init(app, prefix);
 
     server.listen(port, () => {
         console.log(`[API] Running on port ${port}`);
     })
-
 };
 
 module.exports = Server;

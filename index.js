@@ -7,7 +7,6 @@ const MongoService = require("./src/service/mongo");
 
 const { initService: initAuthenticationService } = require("./src/service/authentication");
 
-
 const start = async (rootConfig) => {
     const { api: apiConfig = {}, database: databaseConfig = {}, socket: socketConfig = {}, storage: storageConfig } = rootConfig;
 

@@ -1,7 +1,10 @@
 const express = require('express');
+const { ObjectID } = require("mongodb")
 const postController = require('../controller/post');
+const notificationController = require('../controller/notification');
 const router = express.Router();
 const pipe = require('../helper/server').pipe
+const {socketService} = require('../event/websocket/index')
 
 router.get('/:postId',
     pipe(
@@ -49,8 +52,22 @@ router.get('/of-user/:userId',
 router.post('/:postId/like',
     pipe(
         (req) => [req.params.postId, req.user._id],
-        postController.like,
-        { end: true }
+        postController.like,        
+    ),
+    pipe(
+        async req => {
+            const post  = await postController.getById(req.params.postId)
+            const notif = {
+                type: 0,
+                createdBy: ObjectID(req.user._id),
+                receiver: [ObjectID(post.author._id)],
+                impactedObjectId: ObjectID(req.params.postId)
+            }
+            socketService.emit('post', notif)
+            return [notif]
+        },
+        notificationController.insert,
+        { end:true }
     )
 )
 

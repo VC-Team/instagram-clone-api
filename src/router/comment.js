@@ -3,6 +3,8 @@ const router = express.Router();
 const { ObjectID } = require("mongodb")
 const pipe = require('../helper/server').pipe
 const commentController = require('../controller/comment')
+const notificationController = require('../controller/notification')
+const postController = require('../controller/post')
 
 router.put('/:postId',
     pipe(
@@ -47,7 +49,6 @@ router.get('/comments-of-comment/:commentId',
 router.post('/like',
     pipe(
         (req) => {
-            console.log('req.body: ', req.body)
             return [
                 req.body.commentId,
                 {
@@ -58,7 +59,19 @@ router.post('/like',
             ]
         },
         commentController.updateById,
-        { end: true }
+    ),
+    pipe(
+        async req => {
+            const comment = await commentController.getById(req.commentId)
+            return [{
+                type: 0,
+                createdBy: ObjectID(req.user._id),
+                receiver: [ObjectID(comment.author._id)],
+                impactedObjectId: ObjectID(req.commentId)
+            }]
+        },
+        notificationController.insert,
+        {end:true}
     )
 )
 
@@ -92,7 +105,23 @@ router.post('/:postId',
             }]
         },
         commentController.insert,
-        { end: true }
+    ),
+    pipe(
+        async (req) => {
+            const post = await postController.getById(req.params.postId)
+            return [{
+                type: 1,
+                createdBy: ObjectID(req.user._id),
+                actionContent: req.body,
+                receiver: [
+                    ...req.body.tags.map(userId => ObjectID(userId)),
+                    ObjectID(post.author._id),
+                ],
+                impactedObjectId: ObjectID(req.params.postId),
+            }]
+        },
+        notificationController.insert,
+        { end: true, transformBeforeEnd: null }
     )
 )
 
