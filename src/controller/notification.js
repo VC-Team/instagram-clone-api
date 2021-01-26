@@ -48,10 +48,10 @@ notificationController.getDetail = async (notification) => {
 
     if (notification.type == 1) {
         // comment
-        detailNotification.actionContent = await commentController.getById(notification.actionContent)        
+        detailNotification.actionContent = await commentController.getById(notification.actionContent)
     }
 
-    if(notification.impactedObjectId){
+    if (notification.impactedObjectId) {
         detailNotification.impactedObject = await postController.getById(notification.impactedObjectId)
     }
 
@@ -65,9 +65,14 @@ notificationController.getListNotificationOfUser = async (userId) => {
         }
     })
 
-    return await notifs.map(async notif => {
-        return await notificationController.getDetail(notif)
-    })
+    let listNotifDetail = []
+
+    for (let index = 0; index < notifs.length; index++) {
+        const notifDetail = await notificationController.getDetail(notifs[index])
+        listNotifDetail.push(notifDetail)
+    }
+
+    return listNotifDetail
 }
 
 module.exports = notificationController
