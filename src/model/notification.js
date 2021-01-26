@@ -3,7 +3,7 @@ const Types = Schema.Types;
 
 const _schema = new Schema({
     type: {
-        type: Number, // [0: like] - [1: comment] - [2: tag]
+        type: Number, // [0: like] - [1: comment] - [2: tag] - [3: follow] - [4: accept]
         required: true
     },
     createdBy: {
@@ -19,7 +19,7 @@ const _schema = new Schema({
     },
     impactedObjectId: {
         type: Types.ObjectId,
-        required: true
+        required: false
     }
 }, { timestamps: true })
 

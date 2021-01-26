@@ -89,7 +89,7 @@ userController.isBlock = async (userId, userBlockId) => {
     return isBlock
 }
 
-userController.follow = async (userId, followerId) => {
+userController.acceptFollow = async (userId, followerId) => {
     await User.updateOne(
         {
             _id: ObjectID(userId)

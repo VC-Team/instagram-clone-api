@@ -1,7 +1,8 @@
+const { ObjectID } = require("mongodb");
 const userController = require("../controller/user");
 const { pipe } = require("../helper/server");
 const router = require("express").Router();
-
+const notificationController = require('../controller/notification')
 
 router.get('/search/:value',
     pipe(
@@ -47,11 +48,27 @@ router.get('/:userId/followers',
 
 router.post('/follow',
     pipe(
-        (req) => {
-            return [req.user._id, req.body.followerId]
+        (req, res) => {
+            const notification = {
+                type: 3,
+                createdBy: ObjectID(req.user._id),
+                receiver: [ObjectID(req.body.followerId)],
+            }
+            notification.receiver.forEach(receiver => {
+                res.io.emit(`notification/${receiver}`, notification)
+            })
+            return [notification]
         },
-        userController.follow,
+        notificationController.insert,
         { end: true }
+    )
+)
+
+router.post('/acceptFollow',
+    pipe(
+        req => [req.body.acceptedUserId, req.user._id],
+        userController.acceptFollow,
+        {end: true}
     )
 )
 
