@@ -2,6 +2,7 @@ const Notification = require("../model/notification")
 const { ObjectID } = require("mongodb")
 const userController = require("../controller/user")
 const commentController = require("../controller/comment")
+const postController = require("../controller/post")
 
 let notificationController = {}
 
@@ -43,12 +44,15 @@ notificationController.deleteById = async (id) => {
 notificationController.getDetail = async (notification) => {
     let detailNotification = {}
 
-    detailNotification.createdby = await userController.getById(notification.createdby)
+    detailNotification.createdby = await userController.getById(notification.createdBy)
 
-    if (type == 1) {
+    if (notification.type == 1) {
         // comment
-        detailNotification.actionContent = await commentController.getById(notification.actionContent)
-        detailNotification.impactedObject = await commentController.getById(notification.impactedObjectId)
+        detailNotification.actionContent = await commentController.getById(notification.actionContent)        
+    }
+
+    if(notification.impactedObjectId){
+        detailNotification.impactedObject = await postController.getById(notification.impactedObjectId)
     }
 
     return detailNotification
@@ -57,7 +61,7 @@ notificationController.getDetail = async (notification) => {
 notificationController.getListNotificationOfUser = async (userId) => {
     const notifs = await notificationController.getByFilter({
         receiver: {
-            $elemMatch: { $eq: userId }
+            $elemMatch: { $eq: ObjectID(userId) }
         }
     })
 
