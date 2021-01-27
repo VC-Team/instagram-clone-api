@@ -4,11 +4,15 @@ const { pipe } = require("../helper/server");
 const router = require("express").Router();
 const notificationController = require('../controller/notification')
 
-router.get('/search/:value',
+router.post('/search/:userName',
     pipe(
-        (req) => [{
-            $text: { $search: req.params.value }
-        }],
+        (req) => {
+            return [
+                {"userName" : {$regex : `.*${req.params.userName}.*`}},
+                {},
+                req.body
+            ]
+        },
         userController.getByFilter,
         { end: true }
     )

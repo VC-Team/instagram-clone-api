@@ -4,7 +4,7 @@ const { ObjectID } = require("mongodb")
 const pipe = require('../helper/server').pipe
 const notificationController = require('../controller/notification')
 
-router.get('/',
+router.post('/',
     pipe(
         (req) => [req.user._id],
         notificationController.getListNotificationOfUser,

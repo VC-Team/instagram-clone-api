@@ -4,7 +4,6 @@ const postController = require('../controller/post');
 const notificationController = require('../controller/notification');
 const router = express.Router();
 const pipe = require('../helper/server').pipe
-const { socketService } = require('../event/websocket/index')
 
 router.get('/:postId',
     pipe(
@@ -16,11 +15,28 @@ router.get('/:postId',
 
 router.post('/',
     pipe(
-        (req) => [{
-            author: req.user._id,
-            ...req.body
-        }],
-        postController.insert,
+        (req) => {
+            return [{
+                author: req.user._id,
+                ...req.body,
+                tags: req.body.tags.map(userId => ObjectID(userId))
+            }]
+        },
+        postController.insert,        
+    ),
+    pipe(
+        (req,res) => {
+            if(!Array.isArray(req.body.tags)) return 
+            const notification = {
+                type: 0,
+                createdBy: ObjectID(req.user._id),
+                actionContent: req.body,
+                receiver: req.body.tags.map(userId => ObjectID(userId))
+            }
+
+            notificationController.emitNotification(notification)
+        },
+        notificationController.insert,
         { end: true }
     )
 )
@@ -41,9 +57,13 @@ router.delete('/:postId',
     )
 )
 
-router.get('/of-user/:userId',
+router.post('/of-user/:userId',
     pipe(
-        (req) => [{ author: { $eq: req.params.userId } }],
+        (req) => [
+            { author: { $eq: req.params.userId } },
+            {},
+            req.body
+        ],
         postController.getByFilter,
         { end: true }
     )
@@ -65,9 +85,7 @@ router.post('/:postId/like',
                 receiver: [ObjectID(post.author._id)],
                 impactedObjectId: ObjectID(req.params.postId)
             }
-            notification.receiver.forEach(receiver => {
-                res.io.emit(`notification/${receiver}`, notification)
-            })
+            notificationController.emitNotification(notification, res.io)
             return [notification]
         },
         notificationController.insert,
@@ -85,7 +103,7 @@ router.post('/:postId/unlike',
 
 router.post('/newsfeed',
     pipe(
-        (req) => [req.user._id],
+        (req) => [req.user._id, req.body],
         postController.getNewsfeedOfUser,
         { end: true }
     )

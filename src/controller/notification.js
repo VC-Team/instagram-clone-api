@@ -11,8 +11,9 @@ notificationController.insert = async (data) => {
     return notifications
 }
 
-notificationController.getByFilter = async (filter = {}, projection = {}) => {
-    const notifications = await Notification.find(filter, projection)
+notificationController.getByFilter = async (filter = {}, projection = {}, loadmore={}) => {
+    const {limit, skip} = loadmore
+    const notifications = await Notification.find(filter, projection).limit(limit).skip(skip)
     return notifications
 }
 
@@ -41,6 +42,14 @@ notificationController.deleteById = async (id) => {
     return true
 }
 
+notificationController.emitNotification = (notification, io) => {
+    const detailNotification = notificationController.getDetail(notification)
+
+    notification.receiver.forEach(receiver => {
+        io.emit(`notification/${receiver}`, detailNotification)
+    })
+}
+
 notificationController.getDetail = async (notification) => {
     let detailNotification = {}
 
@@ -58,12 +67,12 @@ notificationController.getDetail = async (notification) => {
     return detailNotification
 }
 
-notificationController.getListNotificationOfUser = async (userId) => {
+notificationController.getListNotificationOfUser = async (userId, loadmore={}) => {
     const notifs = await notificationController.getByFilter({
         receiver: {
             $elemMatch: { $eq: ObjectID(userId) }
         }
-    })
+    },{},loadmore)
 
     let listNotifDetail = []
 

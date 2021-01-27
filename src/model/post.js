@@ -15,6 +15,12 @@ const _schema = new Schema({
         type: [String],
         required: true,
     },
+    tags: {
+        type: [Types.ObjectId],
+        required: false,
+        default: []
+    },
+
     peopleLike: {
         type: [Types.ObjectId],
         required: false,

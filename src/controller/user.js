@@ -8,8 +8,9 @@ userController.insert = async (data) => {
     return users
 }
 
-userController.getByFilter = async (filter = {}, projection = {}) => {
-    const users = await User.find(filter, projection)
+userController.getByFilter = async (filter = {}, projection = {}, loadmore={}) => {
+    const {limit, skip} = loadmore
+    const users = await User.find(filter, projection).limit(limit).skip(skip)
     return users
 }
 

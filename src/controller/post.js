@@ -10,8 +10,9 @@ postController.insert = async (data) => {
     return posts
 }
 
-postController.getByFilter = async (filter = {}, projection = {}) => {
-    const posts = await Post.find(filter, projection)
+postController.getByFilter = async (filter = {}, projection = {}, loadmore = {}) => {
+    const {limit, skip} = loadmore
+    const posts = await Post.find(filter, projection).limit(limit).skip(skip)
     return posts
 }
 
@@ -85,7 +86,9 @@ postController.unlike = async (postId, userId) => {
 
 // =========================== GET NEWS FEED ==============================
 
-postController.getNewsfeedOfUser = async (userId) => {
+postController.getNewsfeedOfUser = async (userId, loadmore) => {
+    const {limit, skip} = loadmore
+
     let posts = await Post.aggregate([
         {
             $match: {
@@ -111,6 +114,8 @@ postController.getNewsfeedOfUser = async (userId) => {
                 }
             }
         },
+        { $limit : limit },
+        { $skip : skip }
     ])
 
     return posts
